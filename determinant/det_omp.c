@@ -44,9 +44,13 @@ void print_matrix(double** matrix, int shape){
 
 int main(int argc, char* argv[])
 {
-    int shape, size, rank;
+    int shape, size, rank, num_threads;
     double start_time, stop_time, coef, res = 1;
     double **matrix;
+    
+    num_threads = atoi(argv[1]);
+    omp_set_num_threads(num_threads);
+    printf("Threads: %d\n", omp_get_max_threads());
 
     printf("Enter a matrix shape: ");
     fflush(stdout);
