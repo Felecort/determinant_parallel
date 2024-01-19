@@ -1,4 +1,4 @@
-# mpiexec -n 4 python script.py
+# mpiexec -n 4 python det_mpi.py
 
 from mpi4py import MPI
 import numpy as np
@@ -15,7 +15,6 @@ def fill_matrix(matrix, shape):
         for col in range(shape):
             value = np.random.random() / 2
             matrix[row * shape + col] = value
-            f.write(f"{value}, ")
     if WRITE_MATRIX_TO_FILE:
         with open("generated_matrix.txt", "w") as f:
             for row in range(shape):
