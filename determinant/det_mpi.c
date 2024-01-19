@@ -10,22 +10,29 @@
 #define FROM_WORKER 2
 
 // #define PRINT_MATRIX
+#define WRITE_MATRIX_TO_FILE
+
 
 void fill_matrix(double *matrix, int shape)
 {
-    int i = 0;
     double value;
-    FILE *f = fopen("generated_matrix.txt", "w");
     for (int row = 0; row < shape; row++){
         for (int col = 0; col < shape; col++){
             value = ((double)rand() / RAND_MAX) / 5;
             matrix[row * shape + col] = value;
-            fprintf(f, "%lf, ", value);
-            i++;
+        }
+    }
+#ifdef WRITE_MATRIX_TO_FILE
+    FILE *f = fopen("generated_matrix.txt", "w");
+    for (int row = 0; row < shape; row++){
+        for (int col = 0; col < shape; col++){
+            value = matrix[row * shape + col];
+            fprintf(f, "%.20lf, ", value);
         }
         fprintf(f, "\n");
     }
     fclose(f);
+#endif
 }
 
 
