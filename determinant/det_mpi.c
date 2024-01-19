@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#define MASTER 0            /* rank of first task */
-#define FROM_MASTER 1            /* setting a message type */
+#define MASTER 0
+#define FROM_MASTER 1
 #define FROM_WORKER 2
 
 // #define PRINT_MATRIX
