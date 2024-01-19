@@ -44,7 +44,6 @@ def triangalization(main_arr, buffer, shape, main_arr_index, lines):
             buffer[row * shape + col] = coef * main_arr[col] + buffer[row * shape + col]
 
 
-# rc = MPI.Init()
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
