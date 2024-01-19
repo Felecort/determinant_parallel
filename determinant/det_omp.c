@@ -1,4 +1,6 @@
 // gcc -o out -fopenmp det_omp.c && ./out 12
+
+
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
