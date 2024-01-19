@@ -1,8 +1,9 @@
-// gcc -o out -std=c99 -lpthread det_pthread.c && ./out
+// gcc -o out -lpthread det_pthread.c && ./out
 
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 // #define PRINT_MATRIX
 #define WRITE_MATRIX_TO_FILE
@@ -70,13 +71,16 @@ void* triangalization(void* threads_dara_arr){
 
 int main(int argc, char* argv[]){
     int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads;
-    double start_time, stop_time, coef, res = 1;
+    double coef, res = 1;
     double **matrix;
-    
+    if (argc == 1){
+        printf("use: ./out <num of threads>\n");
+        return 1;
+    }
     num_threads = atoi(argv[1]);
     if (num_threads < 1) {
         printf("num threads nust be positive\n");
-        return 1;
+        return 2;
     }
 
     printf("Enter a matrix shape: ");
@@ -84,7 +88,7 @@ int main(int argc, char* argv[]){
     scanf("%d", &shape);
     if (shape < 1){
         printf("Shape must be > 1\n");
-        return 2;
+        return 3;
     }
     printf("Allocation...\n");
     
@@ -102,7 +106,7 @@ int main(int argc, char* argv[]){
     printf("\n");
     pthread_t* threads = (pthread_t*) malloc(num_threads * sizeof(pthread_t));
     pthrData* threads_dara_arr = (pthrData*) malloc(num_threads * sizeof(pthrData));
-
+    time_t start_time = clock();
     for (int main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
         div_ = (shape - main_arr_index - 1) / num_threads;
         mod_ = (shape - main_arr_index - 1) % num_threads;
@@ -149,8 +153,11 @@ int main(int argc, char* argv[]){
     for (int mid = 0; mid < shape; mid++){
         res *= matrix[mid][mid];
     }
-    printf("DETERMINANT: %lf\n", res);
+    time_t stop_time = clock();
 
+    printf("DETERMINANT: %lf\n", res);
+    printf("Time: %f\n", ((double)(stop_time - start_time)) / CLOCKS_PER_SEC);
+    printf("start: %ld, stop: %ld \n", start_time, stop_time);
 
     free(threads);
 	free(threads_dara_arr);
