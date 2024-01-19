@@ -68,13 +68,12 @@ int main(int argc, char *argv[])
 {
     int rc, rank, size, shape, main_arr_index, lines, div_, mod_, inner_lines;
     int tag = 1;
-    int shift_line = 0;
     double *matrix, *main_arr, *buffer;
     double start_time, stop_time;
     MPI_Status status;
 
     if (rc = MPI_Init(&argc, &argv)){
-        printf("Ошибка запуска\n");
+        printf("Launch error\n");
         MPI_Abort(MPI_COMM_WORLD, rc);
         return -1;
     }
@@ -88,7 +87,7 @@ int main(int argc, char *argv[])
         printf("Allocation...\n");
         matrix = (double *)malloc(shape * shape * sizeof(double));
         fill_matrix(matrix, shape);
-        printf("\nMatrix created!\n");
+        printf("Matrix created!\n");
 #ifdef PRINT_MATRIX
         print_matrix(matrix, shape);
 #endif
