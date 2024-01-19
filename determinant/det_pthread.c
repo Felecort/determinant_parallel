@@ -44,17 +44,7 @@ void print_matrix(double** matrix, int shape){
 }
 
 
-typedef struct{
-	int shape; //номер обрабатываемой строки
-	int main_arr_index;
-    int lines;
-    int start_row;
-    double** matrix;
-} pthrData;
-
-
 void* triangalization(void* threads_dara_arr){
-
     double coef;
 	pthrData *data = (pthrData*)threads_dara_arr;
  
@@ -67,6 +57,15 @@ void* triangalization(void* threads_dara_arr){
 
 	return NULL;
 }
+
+
+typedef struct{
+	int shape;
+	int main_arr_index;
+    int lines;
+    int start_row;
+    double** matrix;
+} pthrData;
 
 
 int main(int argc, char* argv[]){
@@ -104,17 +103,23 @@ int main(int argc, char* argv[]){
     print_matrix(matrix, shape);
 #endif
     printf("\n");
+    
     pthread_t* threads = (pthread_t*) malloc(num_threads * sizeof(pthread_t));
     pthrData* threads_dara_arr = (pthrData*) malloc(num_threads * sizeof(pthrData));
+    
     time_t start_time = clock();
+    
     for (int main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
         div_ = (shape - main_arr_index - 1) / num_threads;
         mod_ = (shape - main_arr_index - 1) % num_threads;
+        
         running_threads = 0;
+        
         for (int rank_id = 0; rank_id < num_threads; rank_id++){
             threads_dara_arr[rank_id].shape = shape;
             threads_dara_arr[rank_id].main_arr_index = main_arr_index;
             threads_dara_arr[rank_id].matrix = matrix;
+            
             if (rank_id < mod_){
                 inner_lines = div_ + 1;
             } else {
@@ -125,26 +130,17 @@ int main(int argc, char* argv[]){
             if (rank_id < mod_ && inner_lines != 0){
                 start_row = main_arr_index + 1 + rank_id * inner_lines;
                 threads_dara_arr[rank_id].start_row = start_row;
-                // printf("main_arr_index: %d, rank: %d, lines: %d start from: %d\n", main_arr_index, rank_id, inner_lines, start_row);
                 pthread_create(&(threads[rank_id]), NULL, triangalization, &threads_dara_arr[rank_id]);
                 running_threads++;
-                // pthread_join(threads[rank_id], NULL);
-                // print_matrix(matrix, shape);
-                // return 0;
-
             } else if (inner_lines != 0) {
                 start_row = main_arr_index + 1 + rank_id * inner_lines + mod_;
                 threads_dara_arr[rank_id].start_row = start_row;
-                // printf("main_arr_index: %d, rank: %d, lines: %d start from: %d\n", main_arr_index, rank_id, inner_lines, start_row);
                 pthread_create(&(threads[rank_id]), NULL, triangalization, &threads_dara_arr[rank_id]);
                 running_threads++;
             }
-            // printf("rank: %d\n", rank_id);
         }
         for(int i = 0; i < running_threads; i++)
             pthread_join(threads[i], NULL);
-        // print_matrix(matrix, shape);
-        // printf("\n");
     }
 
 #ifdef PRINT_MATRIX
@@ -153,6 +149,7 @@ int main(int argc, char* argv[]){
     for (int mid = 0; mid < shape; mid++){
         res *= matrix[mid][mid];
     }
+    
     time_t stop_time = clock();
 
     printf("DETERMINANT: %lf\n", res);
@@ -166,8 +163,3 @@ int main(int argc, char* argv[]){
     }
     free(matrix);
 }
-	// int shape; //номер обрабатываемой строки
-	// int main_arr_index;
-    // int lines;
-    // int start_row;
-    // double** matrix;
