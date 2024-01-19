@@ -1,4 +1,4 @@
-// export OMP_NUM_THREADS=8 && gcc -o out -fopenmp det_omp.c && ./out
+// gcc -o out -fopenmp det_omp.c && ./out 12
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
