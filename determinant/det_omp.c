@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     
     fill_matrix(matrix, shape);
     
-    printf("\nMatrix created!\n");
+    printf("Matrix created!\n");
 #ifdef PRINT_MATRIX
     print_matrix(matrix, shape);
 #endif
@@ -72,7 +72,6 @@ int main(int argc, char* argv[])
 
     start_time = omp_get_wtime();
 
-    // Begin of parallel region
     #pragma omp parallel private(rank, coef) shared(size, shape, matrix)
     {
         for (int main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
