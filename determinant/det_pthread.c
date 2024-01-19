@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 
 // #define PRINT_MATRIX
 #define WRITE_MATRIX_TO_FILE
@@ -44,6 +45,15 @@ void print_matrix(double** matrix, int shape){
 }
 
 
+typedef struct{
+	int shape;
+	int main_arr_index;
+    int lines;
+    int start_row;
+    double** matrix;
+} pthrData;
+
+
 void* triangalization(void* threads_dara_arr){
     double coef;
 	pthrData *data = (pthrData*)threads_dara_arr;
@@ -59,16 +69,9 @@ void* triangalization(void* threads_dara_arr){
 }
 
 
-typedef struct{
-	int shape;
-	int main_arr_index;
-    int lines;
-    int start_row;
-    double** matrix;
-} pthrData;
-
-
 int main(int argc, char* argv[]){
+    long start, end;
+    struct timeval tval_before, tval_after, tval_result;
     int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads;
     double coef, res = 1;
     double **matrix;
@@ -104,11 +107,10 @@ int main(int argc, char* argv[]){
 #endif
     printf("\n");
     
+
+    gettimeofday(&tval_before, NULL);
     pthread_t* threads = (pthread_t*) malloc(num_threads * sizeof(pthread_t));
     pthrData* threads_dara_arr = (pthrData*) malloc(num_threads * sizeof(pthrData));
-    
-    time_t start_time = clock();
-    
     for (int main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
         div_ = (shape - main_arr_index - 1) / num_threads;
         mod_ = (shape - main_arr_index - 1) % num_threads;
@@ -149,12 +151,12 @@ int main(int argc, char* argv[]){
     for (int mid = 0; mid < shape; mid++){
         res *= matrix[mid][mid];
     }
-    
-    time_t stop_time = clock();
+    gettimeofday(&tval_after, NULL);
+    timersub(&tval_after, &tval_before, &tval_result);
 
     printf("DETERMINANT: %lf\n", res);
-    printf("Time: %f\n", ((double)(stop_time - start_time)) / CLOCKS_PER_SEC);
-    printf("start: %ld, stop: %ld \n", start_time, stop_time);
+    // printf("Time: %lf\n", time_spent);    
+    printf("Time: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
 
     free(threads);
 	free(threads_dara_arr);
