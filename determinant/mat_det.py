@@ -7,10 +7,13 @@ if __name__ == "__main__":
     df.drop(columns=df.shape[0] , inplace=True)
 
     arr = np.array(df.values)
-    start = time()
     det = np.linalg.det(arr)
-    stop = time()
 
+    with open("result.txt", "r") as f:
+        my_det = float(f.read())
+        print(my_det)
+
+    ratio = np.abs(my_det / det)
     print("\n\nshape: ", arr.shape)
     print(f"DETERMINANT:", det)
-    print("Time:", stop - start)
+    print(f"determinants ratio: {ratio:.3f}, Is close: {np.isclose(ratio, 1)}")
