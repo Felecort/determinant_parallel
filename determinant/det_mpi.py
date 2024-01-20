@@ -9,6 +9,7 @@ WRITE_MATRIX_TO_FILE = 0
 
 
 def fill_matrix(matrix, shape):
+    np.random.seed(42);
     i = 0
     value = 0.0
     for row in range(shape):

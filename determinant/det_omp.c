@@ -11,6 +11,7 @@
 
 void fill_matrix(double **matrix, int shape)
 {
+    srand(42);
     int i = 0;
     double value;
     for (int row = 0; row < shape; row++){
