@@ -15,7 +15,7 @@ pthread_barrier_t barrier;
 
 void fill_matrix(double **matrix, int shape)
 {
-    srand(42);
+    srand(time(NULL));
     int i = 0;
     double value;
     for (int row = 0; row < shape; row++){
@@ -182,7 +182,9 @@ int main(int argc, char* argv[]){
 
     printf("DETERMINANT: %lf\n", res);
     printf("Time: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
-
+    FILE* f = fopen("result.txt", "w");
+    fprintf(f, "%.5lf", res);
+    fclose(f);
     free(threads);
     free(matrix_data);
     for (int row = 0; row < shape; row++){

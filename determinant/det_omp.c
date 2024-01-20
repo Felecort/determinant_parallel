@@ -4,14 +4,15 @@
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
- 
+#include <time.h>
+
 // #define PRINT_MATRIX
 #define WRITE_MATRIX_TO_FILE
 
 
 void fill_matrix(double **matrix, int shape)
 {
-    srand(42);
+    srand(time(NULL));
     int i = 0;
     double value;
     for (int row = 0; row < shape; row++){
@@ -100,7 +101,9 @@ int main(int argc, char* argv[])
 
     printf("DETERMINANT: %lf\n", res);
     printf("Time: %lf\n", stop_time - start_time);
-
+    FILE* f = fopen("result.txt", "w");
+    fprintf(f, "%.5lf", res);
+    fclose(f);
     // Free memory
     for (int row = 0; row < shape; row++){
         free(matrix[row]);

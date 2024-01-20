@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #define MASTER 0
 #define FROM_MASTER 1
 #define FROM_WORKER 2
@@ -15,7 +16,7 @@
 
 void fill_matrix(double *matrix, int shape)
 {
-    srand(42);
+    srand(time(NULL));
     double value;
     for (int row = 0; row < shape; row++){
         for (int col = 0; col < shape; col++){
@@ -178,6 +179,10 @@ int main(int argc, char *argv[])
         stop_time = MPI_Wtime();
         printf("\nDETERMINANT: %lf\n", res);
         printf("Time: %lf\n", stop_time - start_time);
+        
+        FILE* f = fopen("result.txt", "w");
+        fprintf(f, "%.5lf", res);
+        fclose(f);
     }
 
     if (rank == 0){

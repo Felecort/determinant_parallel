@@ -2,15 +2,13 @@
 
 from mpi4py import MPI
 import numpy as np
-
-
+from random import randint
 PRINT_MATRIX = 0
-WRITE_MATRIX_TO_FILE = 0
+WRITE_MATRIX_TO_FILE = 1
 
 
 def fill_matrix(matrix, shape):
-    np.random.seed(42);
-    i = 0
+    np.random.seed(randint(0, 1000));
     value = 0.0
     for row in range(shape):
         for col in range(shape):
@@ -125,3 +123,5 @@ if rank == 0:
     
     print("DETERMINANT: ", res)
     print(f"Time: {stop_time - start_time:.2f}")
+    with open("result.txt", "w") as f:
+        f.write(str(res))
