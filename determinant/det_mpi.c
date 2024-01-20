@@ -13,7 +13,7 @@
 // #define PRINT_MATRIX
 #define WRITE_MATRIX_TO_FILE
 
-
+// Filling matrix with random values
 void fill_matrix(double *matrix, int shape)
 {
     srand(time(NULL));
@@ -48,14 +48,14 @@ void print_matrix(double *matrix, int shape)
     }
 }
 
-
+// Get the leading row of the matrix from which the column converts to zero
 void get_main_line(double* matrix, double* main_line, int main_line_index, int shape){
     for (int i = 0; i < shape - main_line_index; i++){
         main_line[i] = matrix[main_line_index * shape + i + main_line_index];
     }
 }
 
-
+// Make 1 column of zeros, others values recalculated
 void triangalization(double *main_arr, double*  buffer, int shape, int main_arr_index, int lines){
     for (int row = 0; row < lines; row++){
         double coef = -1 * buffer[row * shape + main_arr_index] / main_arr[main_arr_index];
@@ -98,9 +98,13 @@ int main(int argc, char *argv[])
     }
     MPI_Bcast(&shape, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
+
     for (main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
+        // div_ - how many lines per processor
         div_ = (shape - main_arr_index - 1) / size;
+        // Mod_ - how many processes get div_ + 1 line
         mod_ = (shape - main_arr_index - 1) % size;
+
         main_arr = (double *)malloc(shape * sizeof(double));
         if (rank < mod_){
             lines = div_ + 1;
@@ -119,31 +123,32 @@ int main(int argc, char *argv[])
                 } else {
                     inner_lines = div_;
                 }
-
+                // Can't use Scatter/Gather directly, besause process have different number of lines
+                // Send data to each process
                 if (rank_id < mod_ && inner_lines != 0){
                     MPI_Send(matrix + shape * (main_arr_index + 1 + rank_id * inner_lines), shape * inner_lines, MPI_DOUBLE, rank_id, tag, MPI_COMM_WORLD);
                 } else if (inner_lines != 0) {
                     MPI_Send(matrix + shape * (main_arr_index + 1 + rank_id * inner_lines + mod_), shape * inner_lines, MPI_DOUBLE, rank_id, tag, MPI_COMM_WORLD);
                 }
             }
+            // copy for buffer to save compatibility with other logic
             memcpy(buffer, matrix + shape * (main_arr_index + 1), shape * lines * sizeof(double));
         }
 
         if (lines != 0 && rank != 0){
             MPI_Recv(buffer, shape * lines, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD, &status);
-
         }
-        // MPI_Barrier(MPI_COMM_WORLD);
         MPI_Bcast(main_arr, shape, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-
         triangalization(main_arr, buffer, shape, main_arr_index, lines);
-    
 
+        // return calculated lines
         if (lines != 0 && rank != 0){
             MPI_Send(buffer, shape * lines, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
         }
         if (rank == 0){
+
+            // copy for origin array to save compatibility with other logic
             memcpy(matrix + (main_arr_index + 1) * shape, buffer, lines * shape * sizeof(double));
 
             for (int rank_id = 1; rank_id < size; rank_id++){
@@ -153,7 +158,7 @@ int main(int argc, char *argv[])
                 } else {
                     inner_lines = div_;
                 }
-
+                // recieve data
                 if (rank_id < mod_ && inner_lines != 0){
                     MPI_Recv(matrix + shape * (main_arr_index + 1 + rank_id * inner_lines), shape * inner_lines, MPI_DOUBLE, rank_id, tag, MPI_COMM_WORLD, &status);
                 } else if (inner_lines != 0) {
@@ -173,6 +178,7 @@ int main(int argc, char *argv[])
         printf("\n");
 #endif
         res = matrix[0];
+        // multiplication of elements on the main diagonal
         for (int mid = 1; mid < shape; mid++){
             res *= matrix[mid * shape + mid];
         }

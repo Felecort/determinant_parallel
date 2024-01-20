@@ -3,12 +3,13 @@
 from mpi4py import MPI
 import numpy as np
 from random import randint
+
 PRINT_MATRIX = 0
 WRITE_MATRIX_TO_FILE = 1
 
 
 def fill_matrix(matrix, shape):
-    np.random.seed(randint(0, 1000));
+    np.random.seed(randint(0, 1000))
     value = 0.0
     for row in range(shape):
         for col in range(shape):
@@ -114,6 +115,7 @@ for main_arr_index in range(shape - 1):
                 slice_ = slice(shape * (main_arr_index + 1 + rank_id * inner_lines + mod_), shape * (main_arr_index + 1 + rank_id * inner_lines + mod_) + shape * inner_lines)
                 comm.Recv([recieve_buffer, MPI.DOUBLE], rank_id, 0)
                 matrix[slice_] = recieve_buffer
+
 if rank == 0:
     res = matrix[0]
     for mid in range(1, shape):

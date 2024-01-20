@@ -56,7 +56,7 @@ typedef struct{
     int rank_id;
 } MatrixData;
 
-
+// make column with zeros
 void recalc_row(double** matrix, int shape, int start_row, int lines, int main_arr_index){
     double coef;
     for (int row = start_row; row < lines + start_row; row++){
@@ -86,27 +86,15 @@ void* triangalization(void* matrix_data){
         } else {
             inner_lines = div_;
         }
+        // Each thread process own lines
         if (rank_id < mod_ && inner_lines != 0){
             start_row = main_arr_index + 1 + rank_id * inner_lines;
-
             recalc_row(matrix, shape, start_row, inner_lines, main_arr_index);
-            // for (int row = start_row; row < inner_lines + start_row; row++){
-            //     coef = -1 * matrix[row][main_arr_index] / matrix[main_arr_index][main_arr_index];
-            //     for (int col = 0; col < shape; col++){
-            //         matrix[row][col] += coef * matrix[main_arr_index][col];
-            //     }
-            // }
         } else if (inner_lines != 0) {
             start_row = main_arr_index + 1 + rank_id * inner_lines + mod_;
             recalc_row(matrix, shape, start_row, inner_lines, main_arr_index);
-            // for (int row = start_row; row < inner_lines + start_row; row++){
-            //     coef = -1 * matrix[row][main_arr_index] / matrix[main_arr_index][main_arr_index];
-            //     for (int col = 0; col < shape; col++){
-            //         matrix[row][col] += coef * matrix[main_arr_index][col];
-            //     }
-            // }
         } 
-        fflush(stdout);
+        // sync
         pthread_barrier_wait(&barrier);
     }
     return NULL;
@@ -120,6 +108,7 @@ int main(int argc, char* argv[]){
     int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads, status;
     double coef, res = 1;
     double **matrix;
+    // Preparations...
     if (argc == 1){
         printf("use: ./out <num of threads>\n");
         return 1;
@@ -129,7 +118,7 @@ int main(int argc, char* argv[]){
         printf("num threads nust be positive\n");
         return 2;
     }
-
+    // Create a matrix
     printf("Enter a matrix shape: ");
     fflush(stdout);
     scanf("%d", &shape);
@@ -160,6 +149,7 @@ int main(int argc, char* argv[]){
 
     pthread_barrier_init(&barrier, NULL, num_threads);
     for (int rank_id = 0; rank_id < num_threads; rank_id++) {
+        // Create struct with function parametrs
         matrix_data[rank_id].matrix = matrix;
         matrix_data[rank_id].shape = shape;
         matrix_data[rank_id].rank_id = rank_id;
@@ -174,6 +164,7 @@ int main(int argc, char* argv[]){
 #ifdef PRINT_MATRIX
     print_matrix(matrix, shape);
 #endif
+    // multiplication of elements on the main diagonal
     for (int mid = 0; mid < shape; mid++){
         res *= matrix[mid][mid];
     }
