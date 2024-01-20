@@ -1,13 +1,16 @@
-// gcc -o out -lpthread det_pthread.c && ./out
+// gcc -o out -lpthread -lm det_pthread.c && ./out 8
 
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
+#include <bits/pthreadtypes.h>
+
 
 // #define PRINT_MATRIX
 #define WRITE_MATRIX_TO_FILE
+pthread_barrier_t barrier;
 
 
 void fill_matrix(double **matrix, int shape)
@@ -47,32 +50,73 @@ void print_matrix(double** matrix, int shape){
 
 typedef struct{
 	int shape;
-	int main_arr_index;
-    int lines;
-    int start_row;
     double** matrix;
-} pthrData;
+    int num_threads;
+    int rank_id;
+} MatrixData;
 
 
-void* triangalization(void* threads_dara_arr){
+void recalc_row(double** matrix, int shape, int start_row, int lines, int main_arr_index){
     double coef;
-	pthrData *data = (pthrData*)threads_dara_arr;
- 
-    for (int row = data->start_row; row < data->lines + data->start_row; row++){
-        coef = -1 * data->matrix[row][data->main_arr_index] / data->matrix[data->main_arr_index][data->main_arr_index];
-        for (int col = 0; col < data->shape; col++){
-            data->matrix[row][col] += coef * data->matrix[data->main_arr_index][col];
+    for (int row = start_row; row < lines + start_row; row++){
+        coef = -1 * matrix[row][main_arr_index] / matrix[main_arr_index][main_arr_index];
+        for (int col = 0; col < shape; col++){
+            matrix[row][col] += coef * matrix[main_arr_index][col];
         }
     }
+}
 
-	return NULL;
+
+void* triangalization(void* matrix_data){
+    MatrixData *data = (MatrixData*)matrix_data;
+    double** matrix = data->matrix;
+    double coef;
+    int shape = data->shape;
+    int num_threads = data->num_threads;
+    int rank_id = data->rank_id;
+    int div_, mod_, inner_lines, start_row;
+
+    for (int main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
+        div_ = (shape - main_arr_index - 1) / num_threads;
+        mod_ = (shape - main_arr_index - 1) % num_threads;
+            
+        if (rank_id < mod_){
+            inner_lines = div_ + 1;
+        } else {
+            inner_lines = div_;
+        }
+        if (rank_id < mod_ && inner_lines != 0){
+            start_row = main_arr_index + 1 + rank_id * inner_lines;
+
+            recalc_row(matrix, shape, start_row, inner_lines, main_arr_index);
+            // for (int row = start_row; row < inner_lines + start_row; row++){
+            //     coef = -1 * matrix[row][main_arr_index] / matrix[main_arr_index][main_arr_index];
+            //     for (int col = 0; col < shape; col++){
+            //         matrix[row][col] += coef * matrix[main_arr_index][col];
+            //     }
+            // }
+        } else if (inner_lines != 0) {
+            start_row = main_arr_index + 1 + rank_id * inner_lines + mod_;
+            recalc_row(matrix, shape, start_row, inner_lines, main_arr_index);
+            // for (int row = start_row; row < inner_lines + start_row; row++){
+            //     coef = -1 * matrix[row][main_arr_index] / matrix[main_arr_index][main_arr_index];
+            //     for (int col = 0; col < shape; col++){
+            //         matrix[row][col] += coef * matrix[main_arr_index][col];
+            //     }
+            // }
+        } 
+        fflush(stdout);
+        pthread_barrier_wait(&barrier);
+    }
+    return NULL;
+
 }
 
 
 int main(int argc, char* argv[]){
     long start, end;
     struct timeval tval_before, tval_after, tval_result;
-    int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads;
+    int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads, status;
     double coef, res = 1;
     double **matrix;
     if (argc == 1){
@@ -109,42 +153,23 @@ int main(int argc, char* argv[]){
     
 
     gettimeofday(&tval_before, NULL);
+    
     pthread_t* threads = (pthread_t*) malloc(num_threads * sizeof(pthread_t));
-    pthrData* threads_dara_arr = (pthrData*) malloc(num_threads * sizeof(pthrData));
-    for (int main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
-        div_ = (shape - main_arr_index - 1) / num_threads;
-        mod_ = (shape - main_arr_index - 1) % num_threads;
-        
-        running_threads = 0;
-        
-        for (int rank_id = 0; rank_id < num_threads; rank_id++){
-            threads_dara_arr[rank_id].shape = shape;
-            threads_dara_arr[rank_id].main_arr_index = main_arr_index;
-            threads_dara_arr[rank_id].matrix = matrix;
-            
-            if (rank_id < mod_){
-                inner_lines = div_ + 1;
-            } else {
-                inner_lines = div_;
-            }
-            threads_dara_arr[rank_id].lines = inner_lines;
+    MatrixData* matrix_data = (MatrixData*)malloc(num_threads * sizeof(MatrixData));
 
-            if (rank_id < mod_ && inner_lines != 0){
-                start_row = main_arr_index + 1 + rank_id * inner_lines;
-                threads_dara_arr[rank_id].start_row = start_row;
-                pthread_create(&(threads[rank_id]), NULL, triangalization, &threads_dara_arr[rank_id]);
-                running_threads++;
-            } else if (inner_lines != 0) {
-                start_row = main_arr_index + 1 + rank_id * inner_lines + mod_;
-                threads_dara_arr[rank_id].start_row = start_row;
-                pthread_create(&(threads[rank_id]), NULL, triangalization, &threads_dara_arr[rank_id]);
-                running_threads++;
-            }
-        }
-        for(int i = 0; i < running_threads; i++)
-            pthread_join(threads[i], NULL);
+    pthread_barrier_init(&barrier, NULL, num_threads);
+    for (int rank_id = 0; rank_id < num_threads; rank_id++) {
+        matrix_data[rank_id].matrix = matrix;
+        matrix_data[rank_id].shape = shape;
+        matrix_data[rank_id].rank_id = rank_id;
+        matrix_data[rank_id].num_threads = num_threads;
+        pthread_create(&threads[rank_id], NULL, triangalization, (void*) &(matrix_data[rank_id]));
     }
+    // pthread_barrier_destroy(&barrier);
 
+    for(int i = 0; i < num_threads; ++i) {
+        pthread_join(threads[i], NULL);
+    }
 #ifdef PRINT_MATRIX
     print_matrix(matrix, shape);
 #endif
@@ -155,11 +180,10 @@ int main(int argc, char* argv[]){
     timersub(&tval_after, &tval_before, &tval_result);
 
     printf("DETERMINANT: %lf\n", res);
-    // printf("Time: %lf\n", time_spent);    
     printf("Time: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
 
     free(threads);
-	free(threads_dara_arr);
+    free(matrix_data);
     for (int row = 0; row < shape; row++){
         free(matrix[row]);
     }
