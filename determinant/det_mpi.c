@@ -1,4 +1,4 @@
-// mpicc det_mpi.c -lm -o out && mpirun -n 3 out
+// mpicc det_mpi.c -lm -o out && mpirun -np 3 out
 
 #include "mpi.h"
 #include <stdio.h>
