@@ -10,7 +10,6 @@ if __name__ == "__main__":
 
     with open("result.txt", "r") as f:
         my_det = float(f.read())
-        print(my_det)
 
     if my_det == 0:
         if det < 1e-19:
