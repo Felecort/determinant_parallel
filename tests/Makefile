@@ -1,9 +1,22 @@
+folder := ../determinant
+processes := 5
+threads := 10
+
 mpi_c:
-	mpicc ../determinant/det_mpi_optimized.c -lm -o ../determinant/out
-	mpirun -np 6 ../determinant/out
-	python ../determinant/real_value.py
+	mpicc $(folder)/det_mpi_optimized.c -lm -o $(folder)/out
+	mpirun -np $(processes) $(folder)/out
+	python $(folder)/real_value.py
 
 mpi_py:
-	mpiexec -n 6 python ../determinant/det_mpi.py
-	python ../determinant/real_value.py
+	mpiexec -n $(processes) python $(folder)/det_mpi.py
+	python $(folder)/real_value.py
 
+omp:
+	gcc -o $(folder)/out -fopenmp $(folder)/det_omp.c
+	(folder)/out $(threads)
+	python $(folder)/real_value.py
+
+pthread:
+	gcc -o $(folder)/out -lpthread -lm $(folder)/det_pthread.c
+	$(folder)/out $(threads)
+	python $(folder)/real_value.py
