@@ -13,7 +13,7 @@ mpi_py:
 
 omp:
 	gcc -o $(folder)/out -fopenmp $(folder)/det_omp.c
-	(folder)/out $(threads)
+	$(folder)/out $(threads)
 	python $(folder)/real_value.py
 
 pthread:
