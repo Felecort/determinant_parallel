@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from time import time
 
 if __name__ == "__main__":
     df = pd.read_csv("generated_matrix.txt", sep=",", header=None)
@@ -16,4 +15,6 @@ if __name__ == "__main__":
     ratio = np.abs(my_det / det)
     print("\n\nTEST USING numpy")
     print(f"DETERMINANT:", det)
-    print(f"determinants ratio: {ratio:.3f}, Is close: {np.isclose(ratio, 1)}")
+    print(f"determinants ratio: {ratio:.3f}")
+    print("\n---RESULT---")
+    print(f"Is close: {np.isclose(ratio, 1)}")
