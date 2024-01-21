@@ -12,7 +12,11 @@ if __name__ == "__main__":
         my_det = float(f.read())
         print(my_det)
 
-    ratio = np.abs(my_det / det)
+    if my_det == 0:
+        if det < 1e-19:
+            ratio = 1
+    else:
+        ratio = np.abs(my_det / det)
     print("\n\nTEST USING numpy")
     print(f"DETERMINANT:", det)
     print(f"determinants ratio: {ratio:.3f}")
