@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
         printf("Time: %lf\n", stop_time - start_time);
         
         FILE* f = fopen("result.txt", "w");
-        fprintf(f, "%.5lf", res);
+        fprintf(f, "%.20lf", res);
         fclose(f);
     }
 

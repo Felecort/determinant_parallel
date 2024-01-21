@@ -174,7 +174,7 @@ int main(int argc, char* argv[]){
     printf("DETERMINANT: %lf\n", res);
     printf("Time: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
     FILE* f = fopen("result.txt", "w");
-    fprintf(f, "%.5lf", res);
+    fprintf(f, "%.20lf", res);
     fclose(f);
     free(threads);
     free(matrix_data);
