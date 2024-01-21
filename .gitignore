@@ -1,4 +1,6 @@
 /access
 /.vscode
 determinant/out
-determinant/*.txt
+*.txt
+determinant/[deprecated]det_mpi.c
+determinant/[deprecated]det_pthread.c
