@@ -106,7 +106,6 @@ int main(int argc, char* argv[]){
     print_matrix(matrix, shape);
 #endif
     printf("\n");
-    
 
     gettimeofday(&tval_before, NULL);
     pthread_t* threads = (pthread_t*) malloc(num_threads * sizeof(pthread_t));
