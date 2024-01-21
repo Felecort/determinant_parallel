@@ -125,9 +125,10 @@ int main(int argc, char *argv[])
                 } else {
                     inner_lines = div_;
                 }
+                // set number of lines for each process
                 sendcounts[rank_id] = inner_lines * shape;
 
-
+                // calculate displases between values
                 if (rank_id < mod_){
                     displs[rank_id] = shape * (main_arr_index + 1 + rank_id * inner_lines);
                 } else if (inner_lines != 0) {
@@ -140,7 +141,6 @@ int main(int argc, char *argv[])
         MPI_Bcast(displs, size, MPI_INT, 0, MPI_COMM_WORLD);
         
         MPI_Scatterv(matrix, sendcounts, displs, MPI_DOUBLE, buffer, sendcounts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        
 
         if (lines != 0) triangalization(main_arr, buffer, shape, main_arr_index, lines);
 
@@ -148,7 +148,6 @@ int main(int argc, char *argv[])
         
         free(buffer);
     }
-    MPI_Barrier(MPI_COMM_WORLD);
     if (rank == 0){
         double res;
 #ifdef PRINT_MATRIX
