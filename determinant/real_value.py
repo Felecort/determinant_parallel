@@ -14,6 +14,6 @@ if __name__ == "__main__":
         print(my_det)
 
     ratio = np.abs(my_det / det)
-    print("\n\nshape: ", arr.shape)
+    print("\n\nTEST USING numpy")
     print(f"DETERMINANT:", det)
     print(f"determinants ratio: {ratio:.3f}, Is close: {np.isclose(ratio, 1)}")
