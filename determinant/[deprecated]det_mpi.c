@@ -20,8 +20,7 @@ void fill_matrix(double *matrix, int shape)
     double value;
     for (int row = 0; row < shape; row++){
         for (int col = 0; col < shape; col++){
-            value = ((double)rand() / RAND_MAX);
-            // value = row * shape + col + 1;
+            value = ((double)rand() / RAND_MAX) / 5;
             matrix[row * shape + col] = value;
         }
     }
@@ -61,7 +60,7 @@ void triangalization(double *main_arr, double*  buffer, int shape, int main_arr_
     for (int row = 0; row < lines; row++){
         double coef = -1 * buffer[row * shape + main_arr_index] / main_arr[main_arr_index];
         for (int col = 0; col < shape; col++){
-            buffer[row * shape + col] += coef * main_arr[col];
+            buffer[row * shape + col] = coef * main_arr[col] + buffer[row * shape + col];
         }
     }
 }
@@ -71,8 +70,6 @@ int main(int argc, char *argv[])
 {
     int rc, rank, size, shape, main_arr_index, lines, div_, mod_, inner_lines;
     int tag = 1;
-    int* sendcounts;
-    int* displs;
     double *matrix, *main_arr, *buffer;
     double start_time, stop_time;
     MPI_Status status;
@@ -100,9 +97,6 @@ int main(int argc, char *argv[])
         start_time = MPI_Wtime();
     }
     MPI_Bcast(&shape, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    sendcounts = (int *)malloc((size + 1) * sizeof(int));
-    displs = (int *)malloc((size + 1) * sizeof(int));
-    main_arr = (double *)malloc(shape * sizeof(double));
 
 
     for (main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
@@ -110,6 +104,8 @@ int main(int argc, char *argv[])
         div_ = (shape - main_arr_index - 1) / size;
         // Mod_ - how many processes get div_ + 1 line
         mod_ = (shape - main_arr_index - 1) % size;
+
+        main_arr = (double *)malloc(shape * sizeof(double));
         if (rank < mod_){
             lines = div_ + 1;
         } else {
@@ -117,38 +113,63 @@ int main(int argc, char *argv[])
         }
         buffer = (double *)malloc(shape * lines * sizeof(double));
 
+
         if (rank == 0){
             memcpy(main_arr, matrix + main_arr_index * shape, shape * sizeof(double));
-            for (int rank_id = 0; rank_id < size; rank_id++){
+            for (int rank_id = 1; rank_id < size; rank_id++){
+
                 if (rank_id < mod_){
                     inner_lines = div_ + 1;
                 } else {
                     inner_lines = div_;
                 }
-                sendcounts[rank_id] = inner_lines * shape;
+                // Can't use Scatter/Gather directly, besause process have different number of lines
+                // Send data to each process
+                if (rank_id < mod_ && inner_lines != 0){
+                    MPI_Send(matrix + shape * (main_arr_index + 1 + rank_id * inner_lines), shape * inner_lines, MPI_DOUBLE, rank_id, tag, MPI_COMM_WORLD);
+                } else if (inner_lines != 0) {
+                    MPI_Send(matrix + shape * (main_arr_index + 1 + rank_id * inner_lines + mod_), shape * inner_lines, MPI_DOUBLE, rank_id, tag, MPI_COMM_WORLD);
+                }
+            }
+            // copy for buffer to save compatibility with other logic
+            memcpy(buffer, matrix + shape * (main_arr_index + 1), shape * lines * sizeof(double));
+        }
 
+        if (lines != 0 && rank != 0){
+            MPI_Recv(buffer, shape * lines, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD, &status);
+        }
+        MPI_Bcast(main_arr, shape, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+        triangalization(main_arr, buffer, shape, main_arr_index, lines);
+
+        // return calculated lines
+        if (lines != 0 && rank != 0){
+            MPI_Send(buffer, shape * lines, MPI_DOUBLE, 0, tag, MPI_COMM_WORLD);
+        }
+        if (rank == 0){
+
+            // copy for origin array to save compatibility with other logic
+            memcpy(matrix + (main_arr_index + 1) * shape, buffer, lines * shape * sizeof(double));
+
+            for (int rank_id = 1; rank_id < size; rank_id++){
 
                 if (rank_id < mod_){
-                    displs[rank_id] = shape * (main_arr_index + 1 + rank_id * inner_lines);
+                    inner_lines = div_ + 1;
+                } else {
+                    inner_lines = div_;
+                }
+                // recieve data
+                if (rank_id < mod_ && inner_lines != 0){
+                    MPI_Recv(matrix + shape * (main_arr_index + 1 + rank_id * inner_lines), shape * inner_lines, MPI_DOUBLE, rank_id, tag, MPI_COMM_WORLD, &status);
                 } else if (inner_lines != 0) {
-                    displs[rank_id] = shape * (main_arr_index + 1 + rank_id * inner_lines + mod_);
+                    MPI_Recv(matrix + shape * (main_arr_index + 1 + rank_id * inner_lines + mod_), shape * inner_lines, MPI_DOUBLE, rank_id, tag, MPI_COMM_WORLD, &status);
                 }
             }
         }
-        MPI_Bcast(main_arr, shape, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        MPI_Bcast(sendcounts, size, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(displs, size, MPI_INT, 0, MPI_COMM_WORLD);
-        
-        MPI_Scatterv(matrix, sendcounts, displs, MPI_DOUBLE, buffer, sendcounts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        
-
-        if (lines != 0) triangalization(main_arr, buffer, shape, main_arr_index, lines);
-
-        MPI_Gatherv(buffer, lines * shape, MPI_DOUBLE, matrix, sendcounts, displs, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        
+        free(main_arr);
         free(buffer);
     }
-    MPI_Barrier(MPI_COMM_WORLD);
+
     if (rank == 0){
         double res;
 #ifdef PRINT_MATRIX
@@ -169,7 +190,7 @@ int main(int argc, char *argv[])
         fprintf(f, "%.20lf", res);
         fclose(f);
     }
-    free(sendcounts);
+
     if (rank == 0){
         free(matrix);
     }
