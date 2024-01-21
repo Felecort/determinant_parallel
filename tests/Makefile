@@ -3,7 +3,7 @@ processes := 5
 threads := 10
 
 mpi_c:
-	mpicc $(folder)/det_mpi_optimized.c -lm -o $(folder)/out
+	mpicc $(folder)/det_mpi.c -lm -o $(folder)/out
 	mpirun -np $(processes) $(folder)/out
 	python $(folder)/real_value.py
 
