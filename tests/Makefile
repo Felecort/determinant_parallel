@@ -20,3 +20,6 @@ pthread:
 	gcc -o $(folder)/out -lpthread -lm $(folder)/det_pthread.c
 	$(folder)/out $(threads)
 	python $(folder)/real_value.py
+
+clear:
+	rm $(folder)/out ./result.txt  ./generated_matrix.txt 
