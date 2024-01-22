@@ -1,4 +1,4 @@
-folder := .
+folder := ./determinant
 processes := 5
 threads := 10
 
@@ -18,4 +18,4 @@ pthread:
 	$(folder)/out $(threads)
 
 clear:
-	rm $(folder)/out $(folder)/result.txt  $(folder)/generated_matrix.txt 
+	rm $(folder)/out ./result.txt  ./generated_matrix.txt 
