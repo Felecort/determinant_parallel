@@ -1,4 +1,4 @@
-# Сalculation of the determinant of the matrix using the modified Gauss method 
+# Сalculation determinant of the matrix using the modified Gauss method 
 
 ## Method idea  
 Bringing the matrix to an upper-triangular appearance  
