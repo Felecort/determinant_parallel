@@ -20,6 +20,9 @@ You can chenge number of process and threads in Makefile
 `make clear`  
 After run you should enter matrix shape in stdin  
 
+# Testing  
+Go to `test` directori and use the same commands as in point Build and run  
+
 # Results  
 The results are obtained for a 1000x1000 matrix for programs written in C and for a 350x350 matrix for MPI on Python  
 - MPI C with different number of proccess and nodes  
