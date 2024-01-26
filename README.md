@@ -17,6 +17,7 @@ For the program to work correctly, it is necessary:
 - Python==3.10
 - numpy>=1.24.3
 - pandas>=2.1.1  
+Recommended choice of matrix size: N>800  
 Go to `./tests` folder and use the same commands as in point **Build and run**  
 
 ## Method idea  
