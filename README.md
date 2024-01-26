@@ -1,6 +1,6 @@
 # Сalculation determinant of the matrix using the modified Gauss method 
 ## Build and run  
-You can chenge number of process and threads in Makefile. After run you should enter matrix shape in `stdin`  
+You can chenge number of process and threads in Makefile. After run you should enter matrix shape in `stdin`.
 - MPI C  
 `make mpi_c`
 - MPi Python  
@@ -13,6 +13,10 @@ You can chenge number of process and threads in Makefile. After run you should e
 `make clear`  
 
 ## Testing  
+For the program to work correctly, it is necessary:  
+- Python==3.10
+- numpy>=1.24.3
+- pandas>=2.1.1  
 Go to `./tests` directori and use the same commands as in point **Build and run**  
 
 ## Method idea  
