@@ -1,5 +1,8 @@
 # Сalculation determinant of the matrix using the modified Gauss method 
 ## Build and run  
+- Select and activate python venv  
+- Install dependencies for Python from `.requirements`  
+
 You can chenge number of process and threads in `./Makefile`. After run you should enter matrix shape in `stdin`.
 - MPI C  
 `make mpi_c`
