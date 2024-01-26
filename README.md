@@ -18,7 +18,9 @@ You can chenge number of process and threads in `./Makefile`. After run you shou
 
 ## Testing   
 Recommended choice of matrix size:   
-- For C programs: N>800. For Python: N>200   
+- For C programs: N>800.  
+- For Python: N>200   
+- If `N` too large -> determinant = `+-inf`, test will not be passed  
 
 Go to `./tests` folder and use the same commands as in point **Build and run**.  
 
