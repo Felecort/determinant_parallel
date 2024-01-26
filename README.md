@@ -17,7 +17,7 @@ For the program to work correctly, it is necessary:
 - Python==3.10
 - numpy>=1.24.3
 - pandas>=2.1.1  
-Go to `./tests` directori and use the same commands as in point **Build and run**  
+Go to `./tests` folder and use the same commands as in point **Build and run**  
 
 ## Method idea  
 Bringing the matrix to an upper-triangular appearance  
