@@ -1,13 +1,6 @@
 # Сalculation determinant of the matrix using the modified Gauss method 
-
-## Method idea  
-Bringing the matrix to an upper-triangular appearance  
-![Alt text](./images/alg.png)  
-## Parallelization idea  
-Send to each process or thread respective rows  
-![Alt text](./images/paral.png)  
-# Build and run  
-You can chenge number of process and threads in Makefile  
+## Build and run  
+You can chenge number of process and threads in Makefile. After run you should enter matrix shape in `stdin`  
 - MPI C  
 `make mpi_c`
 - MPi Python  
@@ -18,12 +11,19 @@ You can chenge number of process and threads in Makefile
 `make pthreads`    
 - clear  
 `make clear`  
-After run you should enter matrix shape in stdin  
 
-# Testing  
+## Testing  
 Go to `./tests` directori and use the same commands as in point **Build and run**  
 
-# Results  
+## Method idea  
+Bringing the matrix to an upper-triangular appearance  
+![Alt text](./images/alg.png)  
+### Parallelization idea  
+Send to each process or thread respective rows  
+![Alt text](./images/paral.png)  
+
+
+## Results  
 The results are obtained for a 1000x1000 matrix for programs written in C and for a 350x350 matrix for MPI on Python  
 - MPI C with different number of proccess and nodes  
 ![Alt text](images/MPI_C_res.png) 
