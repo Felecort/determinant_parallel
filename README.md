@@ -7,12 +7,12 @@ You can chenge number of process and threads in `./Makefile`. After run you shou
 
 - MPI C  
 `make mpi_c`
-- MPi Python  
+- MPI Python  
 `make mpi_py`  
 - OMP  
 `make omp`  
 - PThreads  
-`make pthreads`    
+`make pthread`    
 - clear  
 `make clear`  
 
