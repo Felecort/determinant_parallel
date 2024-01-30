@@ -105,7 +105,7 @@ void* triangalization(void* matrix_data){
 int main(int argc, char* argv[]){
     long start, end;
     struct timeval tval_before, tval_after, tval_result;
-    int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads, status;
+    int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads, status, err_flag;
     double coef, res = 1;
     double **matrix;
     // Preparations...
@@ -118,6 +118,7 @@ int main(int argc, char* argv[]){
         printf("num threads nust be positive\n");
         return 2;
     }
+    
     // Create a matrix
     printf("Enter a matrix shape: ");
     fflush(stdout);
@@ -154,7 +155,11 @@ int main(int argc, char* argv[]){
         matrix_data[rank_id].shape = shape;
         matrix_data[rank_id].rank_id = rank_id;
         matrix_data[rank_id].num_threads = num_threads;
-        pthread_create(&threads[rank_id], NULL, triangalization, (void*) &(matrix_data[rank_id]));
+        err_flag = pthread_create(&threads[rank_id], NULL, triangalization, (void*) &(matrix_data[rank_id]));
+        if (err_flag){
+            printf("Failed to run %d thread. Error code: %d\n", rank_id, err_flag);
+            return -1;
+        }
     }
     // pthread_barrier_destroy(&barrier);
 
