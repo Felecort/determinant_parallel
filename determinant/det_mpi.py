@@ -39,7 +39,7 @@ def get_main_line(matrix, main_line, main_line_index, shape):
 def triangalization(main_arr, buffer, shape, main_arr_index, lines):
     for row in range(lines):
         coef = -1 * buffer[row * shape + main_arr_index] / main_arr[main_arr_index]
-        for col in range(shape):
+        for col in range(main_arr_index, shape):
             buffer[row * shape + col] = coef * main_arr[col] + buffer[row * shape + col]
 
 

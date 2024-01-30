@@ -61,7 +61,7 @@ void recalc_row(double** matrix, int shape, int start_row, int lines, int main_a
     double coef;
     for (int row = start_row; row < lines + start_row; row++){
         coef = -1 * matrix[row][main_arr_index] / matrix[main_arr_index][main_arr_index];
-        for (int col = 0; col < shape; col++){
+        for (int col = main_arr_index; col < shape; col++){
             matrix[row][col] += coef * matrix[main_arr_index][col];
         }
     }
