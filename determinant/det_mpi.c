@@ -60,7 +60,7 @@ void get_main_line(double* matrix, double* main_line, int main_line_index, int s
 void triangalization(double *main_arr, double*  buffer, int shape, int main_arr_index, int lines){
     for (int row = 0; row < lines; row++){
         double coef = -1 * buffer[row * shape + main_arr_index] / main_arr[main_arr_index];
-        for (int col = 0; col < shape; col++){
+        for (int col = main_arr_index; col < shape; col++){
             buffer[row * shape + col] += coef * main_arr[col];
         }
     }
