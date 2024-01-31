@@ -4,8 +4,10 @@ import numpy as np
 import pathlib
 import pandas as pd
 
+
 os.getcwd()
 ROOT_FOLDER = os.getcwd() / pathlib.Path("../determinant")
+
 """
     [
         COMPILE_COMMAND,
@@ -57,16 +59,16 @@ if __name__ == "__main__":
     compilation, run, clear = commands_for_test_object
     
     is_test_passed = []
-    # Compilation...
+
     os.system(compilation)
     for calc_units in range(1, max_calc_units + 1):
         for shape in [10, 100, 200, 400, 600, 800, 1000, 1200]:
             print(f"shape = {shape}, proc = {calc_units}")
+            
             os.system(f"{run} {calc_units} {shape}")
+            
             test_result = check_result()
             is_test_passed.append(test_result)
+    
     print(f"\nNum tests: {len(is_test_passed)}\n\t\tPASSED: {sum(is_test_passed)}/{len(is_test_passed)}")
     os.system(clear) 
-
-
-
