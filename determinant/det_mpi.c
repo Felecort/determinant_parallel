@@ -70,14 +70,12 @@ void triangalization(double *main_arr, double*  buffer, int shape, int main_arr_
 int main(int argc, char *argv[])
 {
     int rc, rank, size, shape, main_arr_index, lines, div_, mod_, inner_lines;
-    int tag = 1;
     int* sendcounts;
     int* displs;
     double *matrix, *main_arr, *buffer;
     double start_time, stop_time;
-    MPI_Status status;
 
-    if (rc = MPI_Init(&argc, &argv)){
+    if ((rc = MPI_Init(&argc, &argv))){
         printf("Launch error\n");
         MPI_Abort(MPI_COMM_WORLD, rc);
         return -1;

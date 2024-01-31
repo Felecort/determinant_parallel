@@ -71,7 +71,6 @@ void recalc_row(double** matrix, int shape, int start_row, int lines, int main_a
 void* triangalization(void* matrix_data){
     MatrixData *data = (MatrixData*)matrix_data;
     double** matrix = data->matrix;
-    double coef;
     int shape = data->shape;
     int num_threads = data->num_threads;
     int rank_id = data->rank_id;
@@ -103,10 +102,9 @@ void* triangalization(void* matrix_data){
 
 
 int main(int argc, char* argv[]){
-    long start, end;
     struct timeval tval_before, tval_after, tval_result;
-    int shape, rank, num_threads, div_, mod_, inner_lines, start_row, running_threads, status, err_flag;
-    double coef, res = 1;
+    int shape, num_threads, err_flag;
+    double res = 1;
     double **matrix;
     // Preparations...
     if (argc == 1){

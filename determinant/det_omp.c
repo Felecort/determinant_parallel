@@ -48,7 +48,7 @@ void print_matrix(double** matrix, int shape){
 
 int main(int argc, char* argv[])
 {
-    int shape, size, rank, num_threads;
+    int shape, num_threads;
     double start_time, stop_time, coef, res = 1;
     double **matrix;
     
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 
     start_time = omp_get_wtime();
 
-    #pragma omp parallel private(rank, coef) shared(size, shape, matrix)
+    #pragma omp parallel private(coef) shared(shape, matrix)
     {
         for (int main_arr_index = 0; main_arr_index < shape - 1; main_arr_index++){
             #pragma omp for
