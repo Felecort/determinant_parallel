@@ -65,7 +65,7 @@ if __name__ == "__main__":
             os.system(f"{run} {calc_units} {shape}")
             test_result = check_result()
             is_test_passed.append(test_result)
-    print(f"\nNum tests: {len(is_test_passed)}\nPASSED: {sum(is_test_passed)}/{len(is_test_passed)}")
+    print(f"\nNum tests: {len(is_test_passed)}\n\t\tPASSED: {sum(is_test_passed)}/{len(is_test_passed)}")
     os.system(clear) 
 
 
