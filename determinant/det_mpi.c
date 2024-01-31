@@ -82,19 +82,24 @@ int main(int argc, char *argv[])
     }
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
     if (rank == 0){
+#ifdef TEST
+        shape = atoi(argv[3]);
+        matrix = (double *)malloc(shape * shape * sizeof(double));
+        fill_matrix(matrix, shape);
+#else
         printf("Enter a matrix shape: ");
         fflush(stdout);
         scanf("%d", &shape);
         printf("Allocation...\n");
         matrix = (double *)malloc(shape * shape * sizeof(double));
         fill_matrix(matrix, shape);
-        printf("Matrix created!\n");
+        printf("Matrix created!\n\n");
+#endif
+
 #ifdef PRINT_MATRIX
         print_matrix(matrix, shape);
 #endif
-        printf("\n");
         start_time = MPI_Wtime();
     }
     MPI_Bcast(&shape, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -159,9 +164,10 @@ int main(int argc, char *argv[])
             res *= matrix[mid * shape + mid];
         }
         stop_time = MPI_Wtime();
+#ifndef TEST
         printf("\nDETERMINANT: %lf\n", res);
+#endif
         printf("Time: %lf\n", stop_time - start_time);
-        
         FILE* f = fopen("result.txt", "w");
         fprintf(f, "%.20lf", res);
         fclose(f);

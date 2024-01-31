@@ -116,7 +116,8 @@ int main(int argc, char* argv[]){
         printf("num threads nust be positive\n");
         return 2;
     }
-    
+
+#ifndef TEST
     // Create a matrix
     printf("Enter a matrix shape: ");
     fflush(stdout);
@@ -134,12 +135,18 @@ int main(int argc, char* argv[]){
     
     fill_matrix(matrix, shape);
     
-    printf("\nMatrix created!\n");
+    printf("\nMatrix created!\n\n");
+#else
+    shape = atoi(argv[2]);
+    matrix = (double **)malloc(shape * sizeof(double *));
+    for (int i = 0; i < shape; i++){
+        matrix[i] = (double *)malloc(shape * sizeof(double));
+    }
+    fill_matrix(matrix, shape);
+#endif
 #ifdef PRINT_MATRIX
     print_matrix(matrix, shape);
-#endif
-    printf("\n");
-    
+#endif    
 
     gettimeofday(&tval_before, NULL);
     
@@ -174,7 +181,9 @@ int main(int argc, char* argv[]){
     gettimeofday(&tval_after, NULL);
     timersub(&tval_after, &tval_before, &tval_result);
 
+#ifndef TEST
     printf("DETERMINANT: %lf\n", res);
+#endif
     printf("Time: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
     FILE* f = fopen("result.txt", "w");
     fprintf(f, "%.20lf", res);

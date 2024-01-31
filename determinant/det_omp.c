@@ -54,13 +54,14 @@ int main(int argc, char* argv[])
     
     num_threads = atoi(argv[1]);
     omp_set_num_threads(num_threads);
-    printf("Threads: %d\n", omp_get_max_threads());
 
+#ifndef TEST
+    printf("Threads: %d\n", omp_get_max_threads());
     printf("Enter a matrix shape: ");
     fflush(stdout);
     scanf("%d", &shape);
     printf("Allocation...\n");
-    
+
     matrix = (double **)malloc(shape * sizeof(double *));
     for (int i = 0; i < shape; i++){
         matrix[i] = (double *)malloc(shape * sizeof(double));
@@ -68,11 +69,19 @@ int main(int argc, char* argv[])
     
     fill_matrix(matrix, shape);
     
-    printf("Matrix created!\n");
+    printf("Matrix created!\n\n");
+#else
+    shape = atoi(argv[2]);
+    matrix = (double **)malloc(shape * sizeof(double *));
+    for (int i = 0; i < shape; i++){
+        matrix[i] = (double *)malloc(shape * sizeof(double));
+    }
+    fill_matrix(matrix, shape);
+#endif
+
 #ifdef PRINT_MATRIX
     print_matrix(matrix, shape);
 #endif
-    printf("\n");
 
     start_time = omp_get_wtime();
 
@@ -99,7 +108,9 @@ int main(int argc, char* argv[])
     print_matrix(matrix, shape);
 #endif
 
+#ifndef TEST
     printf("DETERMINANT: %lf\n", res);
+#endif
     printf("Time: %lf\n", stop_time - start_time);
     FILE* f = fopen("result.txt", "w");
     fprintf(f, "%.20lf", res);
