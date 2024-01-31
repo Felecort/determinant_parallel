@@ -16,12 +16,19 @@ You can change the number of process and threads in `./Makefile`. After run you 
 - clear  
 `make clear`  
 
-## Testing   
 Recommended choice of matrix size:   
 - For C programs: N>800.  
 - For Python: N>200   
-- If `N` too large -> determinant = `+-inf`, test will not be passed  
+- If `N` too large -> determinant = `+-inf`, test will not be passed   
 
+## Testing  
+### First approach **(may not work on some systems)**  
+Go to the `./test` folder and run command  
+`python run_tests.py <realization> <proc|threads>`  
+- available realizations: `mpi_c`, `omp`, `pthread`  
+
+
+### **Second approach**  
 Go to `./tests` folder and use the same commands as in point **Build and run**.  
 
 ## Method idea  
