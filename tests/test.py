@@ -4,8 +4,8 @@ import numpy as np
 import pathlib
 import pandas as pd
 
-
-ROOT_FOLDER = pathlib.Path("./determinant")
+os.getcwd()
+ROOT_FOLDER = os.getcwd() / pathlib.Path("../determinant")
 """
     [
         COMPILE_COMMAND,
