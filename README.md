@@ -24,8 +24,9 @@ Recommended choice of matrix size:
 ## Testing  
 ### First approach **(may not work on some systems)**  
 Go to the `./test` folder and run command  
-`python run_tests.py <realization> <proc|threads>`  
+`python run_tests.py <realization> <max proc|threads>`  
 - available realizations: `mpi_c`, `omp`, `pthread`  
+- `<max proc|thread>` means maximum value of threads or procs. Script will test from 1 proc|thread to max value with step 1.
 
 
 ### **Second approach**  
